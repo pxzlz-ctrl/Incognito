@@ -14,6 +14,7 @@ function blockAds(req, res, next) {
 
   for (const domain of blockedDomains) {
     if (url.includes(domain.toLowerCase())) {
+      console.log("Ad detected, attempting to block.")
       res.writeHead(403, { 'Content-Type': 'text/plain' });
       res.end();
       return; // block the connection
