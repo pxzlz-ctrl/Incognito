@@ -14,7 +14,7 @@ function blockAds(req, res, next) {
 
   for (const domain of blockedDomains) {
     if (url.includes(domain.toLowerCase())) {
-      console.log("Ad detected, attempting to block.")
+      console.log("Ad detected, attempting to block.");
       res.writeHead(403, { 'Content-Type': 'text/plain' });
       res.end();
       return; // block the connection
@@ -62,4 +62,4 @@ server.on('listening', () => {
   if(process.env.REPL_SLUG && process.env.REPL_OWNER) console.log(`Replit: https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`);
 });
 
-server.listen({ port: PORT })
+server.listen({ port: PORT });
