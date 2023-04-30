@@ -8,9 +8,10 @@ import serveStatic from "serve-static";
 // The following message MAY NOT be removed
 console.log("Incognito\nThis program comes with ABSOLUTELY NO WARRANTY.\nThis is free software, and you are welcome to redistribute it\nunder the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nYou should have received a copy of the GNU General Public License\nalong with this program. If not, see <https://www.gnu.org/licenses/>.\n");
 
-function blockAds(req, res, next) {
+async function blockAds(req, res, next) {
   const url = req.url.toLowerCase();
-  const blockedDomains = readFileSync("./blockedDomains.txt", "utf-8").split("\n");
+  const response = await fetch('https://raw.githubusercontent.com/pxzlz-ctrl/Incognito/main/blockedDomains.txt');
+  const blockedDomains = (await response.text()).split('\n').map(domain => domain.trim()).filter(domain => domain.length > 0);
 
   for (const domain of blockedDomains) {
     if (url.includes(domain.toLowerCase())) {
