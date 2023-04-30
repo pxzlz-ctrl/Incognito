@@ -6,8 +6,8 @@ import { readFileSync, existsSync } from "node:fs";
 import serveStatic from "serve-static";
 
 // AdBlock
-const adblockParser = require('adblock-parser');
-const adblockLists = require('adblock-lists');
+import adblockParser from 'adblock-parser';
+import adblockLists from 'adblock-lists';
 
 const lists = adblockLists.load();
 const adblocker = new adblockParser(lists);
