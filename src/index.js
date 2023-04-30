@@ -8,6 +8,20 @@ import serveStatic from "serve-static";
 // The following message MAY NOT be removed
 console.log("Incognito\nThis program comes with ABSOLUTELY NO WARRANTY.\nThis is free software, and you are welcome to redistribute it\nunder the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nYou should have received a copy of the GNU General Public License\nalong with this program. If not, see <https://www.gnu.org/licenses/>.\n");
 
+function blockAds(req, res, next) {
+  const url = req.url.toLowerCase();
+  const blockedDomains = readFileSync("./blockedDomains.txt", "utf-8").split("\n");
+
+  for (const domain of blockedDomains) {
+    if (url.includes(domain.toLowerCase())) {
+      res.writeHead(403, { 'Content-Type': 'text/plain' });
+      res.end('Ads are not allowed');
+      return;
+    }
+  }
+  next();
+}
+
 const bare = createBareServer("/bare/");
 const serve = serveStatic(fileURLToPath(new URL("../static/", import.meta.url)), { fallthrough: false });
 var server, PORT;
@@ -21,12 +35,14 @@ if(existsSync("../ssl/key.pem") && existsSync("../ssl/cert.pem")) {
 
 server.on("request", (req, res) => {
   if(bare.shouldRoute(req)) return bare.routeRequest(req, res);
+  blockAds(req, res, () => {
     serve(req, res, (err) => {
       res.writeHead(err?.statusCode || 500, null, {
         "Content-Type": "text/plain",
       });
       res.end('Error')
     })
+  });
 });
 
 server.on("upgrade", (req, socket, head) => {
