@@ -4,13 +4,15 @@ import { createServer as createHttpsServer } from "node:https";
 import { createServer as createHttpServer } from "node:http";
 import { readFileSync, existsSync } from "node:fs";
 import serveStatic from "serve-static";
+const path = require('path');
 
+const filePath = path.join(__dirname, 'src', 'blockedDomains.txt');
 // The following message MAY NOT be removed
 console.log("Incognito\nThis program comes with ABSOLUTELY NO WARRANTY.\nThis is free software, and you are welcome to redistribute it\nunder the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nYou should have received a copy of the GNU General Public License\nalong with this program. If not, see <https://www.gnu.org/licenses/>.\n");
 
 function blockAds(req, res, next) {
   const url = req.url.toLowerCase();
-  const blockedDomains = readFileSync("./blockedDomains.txt", "utf-8").split("\n");
+  const blockedDomains = readFileSync(filePath, "utf-8").split("\n");
 
   for (const domain of blockedDomains) {
     if (url.includes(domain.toLowerCase())) {
