@@ -5,14 +5,8 @@ import { createServer as createHttpServer } from "node:http";
 import { readFileSync, existsSync } from "node:fs";
 import serveStatic from "serve-static";
 
-// AdBlock
-import adblockParser from 'adblock-parser';
-import adblockLists from 'adblock-lists';
-
-const lists = adblockLists.load();
-const adblocker = new adblockParser(lists);
-
-adblocker.start();
+// AdBlock code goes here
+import adBlock from 'ad-block';
 
 // The following message MAY NOT be removed
 console.log("Incognito\nThis program comes with ABSOLUTELY NO WARRANTY.\nThis is free software, and you are welcome to redistribute it\nunder the terms of the GNU General Public License as published by\nthe Free Software Foundation, either version 3 of the License, or\n(at your option) any later version.\n\nYou should have received a copy of the GNU General Public License\nalong with this program. If not, see <https://www.gnu.org/licenses/>.\n");
@@ -30,14 +24,21 @@ if(existsSync("../ssl/key.pem") && existsSync("../ssl/cert.pem")) {
 
 server.on("request", (req, res) => {
   if(bare.shouldRoute(req)) return bare.routeRequest(req, res);
-    serve(req, res, (err) => {
-      if(err) {
-        res.writeHead(err?.statusCode || 500, null, {
-          "Content-Type": "text/plain",
-        });
-        res.end('Error')
-      }
+  if(adBlock.isAd(req.url)) {
+    res.writeHead(200, null, {
+      "Content-Type": "text/plain",
     });
+    res.end('Blocked');
+    return;
+  }
+  serve(req, res, (err) => {
+    if(err) {
+      res.writeHead(err?.statusCode || 500, null, {
+        "Content-Type": "text/plain",
+      });
+      res.end('Error')
+    }
+  });
 });
 
 server.on("upgrade", (req, socket, head) => {
