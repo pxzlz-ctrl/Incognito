@@ -4,14 +4,6 @@ import { createServer as createHttpsServer } from 'node:https';
 import { createServer as createHttpServer } from 'node:http';
 import { readFileSync, existsSync } from 'node:fs';
 import serveStatic from 'serve-static';
-import AdBlocker from '@cliqz/adblocker-webextension';
-
-const adblocker = await AdBlocker.create({
-  subscriptionUrls: [
-    'https://easylist.to/easylist/easylist.txt',
-    'https://easylist.to/easylist/easyprivacy.txt',
-  ],
-});
 
 // The following message MAY NOT be removed
 console.log(
@@ -37,12 +29,7 @@ if (existsSync('../ssl/key.pem') && existsSync('../ssl/cert.pem')) {
 
 server.on('request', async (req, res) => {
   if (bare.shouldRoute(req)) return bare.routeRequest(req, res);
-  const interceptedResponse = await adblocker.interceptRequest(req);
-  if (interceptedResponse) {
-    res.writeHead(200, interceptedResponse.headers);
-    res.end(interceptedResponse.body);
-  } else {
-    serve(req, res, (err) => {
+  serve(req, res, (err) => {
       if (err) {
         res.writeHead(err?.statusCode || 500, null, {
           'Content-Type': 'text/plain',
@@ -50,7 +37,6 @@ server.on('request', async (req, res) => {
         res.end('Error');
       }
     });
-  }
 });
 
 server.on('upgrade', (req, socket, head) => {
